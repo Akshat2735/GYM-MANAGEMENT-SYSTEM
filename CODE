@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Define structures for data
 struct Member {
     int id;
     char name[50];
@@ -16,7 +15,6 @@ struct Staff {
     char position[50];
 };
 
-// Function prototypes
 void addMember();
 void displayMembers();
 void addStaff();
@@ -85,10 +83,9 @@ int main() {
 }
 
 void addMember() {
-    FILE *memberFile;
+    FILE *memberFile = fopen("members.txt", "a");
     struct Member member;
 
-    memberFile = fopen("members.txt", "a");
     if (memberFile == NULL) {
         printf("Error opening file.\n");
         return;
@@ -97,31 +94,28 @@ void addMember() {
     printf("Enter Member ID: ");
     scanf("%d", &member.id);
     printf("Enter Member Name: ");
-    scanf("%s", member.name);
+    scanf("%49s", member.name);
     printf("Enter Member Age: ");
     scanf("%d", &member.age);
     printf("Enter Member Weight: ");
     scanf("%f", &member.weight);
 
     fprintf(memberFile, "%d %s %d %.2f\n", member.id, member.name, member.age, member.weight);
-
     fclose(memberFile);
 }
 
 void displayMembers() {
-    FILE *memberFile;
+    FILE *memberFile = fopen("members.txt", "r");
     struct Member member;
 
-    memberFile = fopen("members.txt", "r");
     if (memberFile == NULL) {
         printf("Error opening file.\n");
         return;
     }
 
-    printf("\nMembers:\n");
-    printf("ID\tName\tAge\tWeight\n");
+    printf("\nMembers:\nID\tName\tAge\tWeight\n");
 
-    while (fscanf(memberFile, "%d %s %d %f", &member.id, member.name, &member.age, &member.weight) != EOF) {
+    while (fscanf(memberFile, "%d %49s %d %f", &member.id, member.name, &member.age, &member.weight) != EOF) {
         printf("%d\t%s\t%d\t%.2f\n", member.id, member.name, member.age, member.weight);
     }
 
@@ -129,10 +123,9 @@ void displayMembers() {
 }
 
 void addStaff() {
-    FILE *staffFile;
+    FILE *staffFile = fopen("staff.txt", "a");
     struct Staff staff;
 
-    staffFile = fopen("staff.txt", "a");
     if (staffFile == NULL) {
         printf("Error opening file.\n");
         return;
@@ -141,29 +134,26 @@ void addStaff() {
     printf("Enter Staff ID: ");
     scanf("%d", &staff.id);
     printf("Enter Staff Name: ");
-    scanf("%s", staff.name);
+    scanf("%49s", staff.name);
     printf("Enter Staff Position: ");
-    scanf("%s", staff.position);
+    scanf("%49s", staff.position);
 
     fprintf(staffFile, "%d %s %s\n", staff.id, staff.name, staff.position);
-
     fclose(staffFile);
 }
 
 void displayStaff() {
-    FILE *staffFile;
+    FILE *staffFile = fopen("staff.txt", "r");
     struct Staff staff;
 
-    staffFile = fopen("staff.txt", "r");
     if (staffFile == NULL) {
         printf("Error opening file.\n");
         return;
     }
 
-    printf("\nStaff:\n");
-    printf("ID\tName\tPosition\n");
+    printf("\nStaff:\nID\tName\tPosition\n");
 
-    while (fscanf(staffFile, "%d %s %s", &staff.id, staff.name, staff.position) != EOF) {
+    while (fscanf(staffFile, "%d %49s %49s", &staff.id, staff.name, staff.position) != EOF) {
         printf("%d\t%s\t%s\n", staff.id, staff.name, staff.position);
     }
 
@@ -171,38 +161,26 @@ void displayStaff() {
 }
 
 void clearDatabase() {
-    FILE *memberFile, *staffFile;
+    FILE *memberFile = fopen("members.txt", "w");
+    FILE *staffFile = fopen("staff.txt", "w");
 
-    memberFile = fopen("members.txt", "w");
-    if (memberFile == NULL) {
-        printf("Error opening members file.\n");
-        return;
-    }
-    fclose(memberFile);
-
-    staffFile = fopen("staff.txt", "w");
-    if (staffFile == NULL) {
-        printf("Error opening staff file.\n");
-        return;
-    }
-    fclose(staffFile);
+    if (memberFile) fclose(memberFile);
+    if (staffFile) fclose(staffFile);
 
     printf("Database cleared successfully.\n");
 }
 
 void clearMemberById(int memberId) {
-    FILE *memberFile, *tempFile;
+    FILE *memberFile = fopen("members.txt", "r");
+    FILE *tempFile = fopen("temp.txt", "w");
     struct Member member;
 
-    memberFile = fopen("members.txt", "r");
-    tempFile = fopen("temp.txt", "w");
-
-    if (memberFile == NULL || tempFile == NULL) {
+    if (!memberFile || !tempFile) {
         printf("Error opening files.\n");
         return;
     }
 
-    while (fscanf(memberFile, "%d %s %d %f", &member.id, member.name, &member.age, &member.weight) != EOF) {
+    while (fscanf(memberFile, "%d %49s %d %f", &member.id, member.name, &member.age, &member.weight) != EOF) {
         if (member.id != memberId) {
             fprintf(tempFile, "%d %s %d %.2f\n", member.id, member.name, member.age, member.weight);
         }
@@ -210,26 +188,22 @@ void clearMemberById(int memberId) {
 
     fclose(memberFile);
     fclose(tempFile);
-
     remove("members.txt");
     rename("temp.txt", "members.txt");
-
     printf("Member with ID %d cleared successfully.\n", memberId);
 }
 
 void clearStaffById(int staffId) {
-    FILE *staffFile, *tempFile;
+    FILE *staffFile = fopen("staff.txt", "r");
+    FILE *tempFile = fopen("temp.txt", "w");
     struct Staff staff;
 
-    staffFile = fopen("staff.txt", "r");
-    tempFile = fopen("temp.txt", "w");
-
-    if (staffFile == NULL || tempFile == NULL) {
+    if (!staffFile || !tempFile) {
         printf("Error opening files.\n");
         return;
     }
 
-    while (fscanf(staffFile, "%d %s %s", &staff.id, staff.name, staff.position) != EOF) {
+    while (fscanf(staffFile, "%d %49s %49s", &staff.id, staff.name, staff.position) != EOF) {
         if (staff.id != staffId) {
             fprintf(tempFile, "%d %s %s\n", staff.id, staff.name, staff.position);
         }
@@ -237,9 +211,7 @@ void clearStaffById(int staffId) {
 
     fclose(staffFile);
     fclose(tempFile);
-
     remove("staff.txt");
     rename("temp.txt", "staff.txt");
-
     printf("Staff with ID %d cleared successfully.\n", staffId);
 }
